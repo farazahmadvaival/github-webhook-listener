@@ -1,25 +1,16 @@
-name: CI/CD counter app
-
-on:
-  push:
-    branches: [ main ]
-
+name: remote ssh command
+on: [push]
 jobs:
 
-  Deploy:
+  build:
+    name: Build
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2 
-      - name: Deploy in EC2
-        env:
-            PRIVATE_KEY: ${{ secrets.KEY  }}
-            HOSTNAME : ${{ secrets.HOST  }}
-            USER_NAME : ${{ secrets.USERNAME  }}
-            
-        run: |
-          echo "$PRIVATE_KEY" > private_key && chmod 600 private_key
-          ssh -o StrictHostKeyChecking=no -i private_key ${USER_NAME}@${HOSTNAME} '
-          
-            #Now we have got the access of EC2 and we will start the deploy .
-            cd /home/ubuntu/inkmind-api && docker pull && docker compose up -d
-          '
+     - name: executing remote ssh commands using ssh key
+       uses: appleboy/ssh-action@v0.1.7
+       with:
+        host: ${{ secrets.HOST }}
+        username: ${{ secrets.USERNAME }}
+        key: ${{ secrets.KEY }}
+        port: ${{ secrets.PORT }}
+        script: whoami
